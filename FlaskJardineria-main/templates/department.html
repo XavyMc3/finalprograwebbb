@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Departamento{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        <li>{{ message }}</li>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endwith %}
+
+<div class="container">
+    <div class="card shadow">
+        <div class="card-body">
+            <h5 class="card-title">Departamento</h5>
+
+            <!-- Botón para abrir modal de agregar departamento -->
+            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregarDepartamento">Agregar Departamento</button>
+
+            <!-- Tabla de departamentos -->
+            <table class="table table-bordered table-striped table-hover" id="dataTable">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Ubicación</th>
+                        <th scope="col">Editar</th>
+                        <th scope="col">Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for departamento in departamentos %}
+                        <tr>
+                            <td>{{ departamento.iddepartamento }}</td>
+                            <td>{{ departamento.nombre }}</td>
+                            <td>{{ departamento.ubicacion }}</td>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="editarDepartamento('{{ departamento.iddepartamento }}')">Editar</button>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('eliminar_departamento', id_departamento=departamento.iddepartamento) }}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar departamento -->
+<div class="modal fade" id="modalAgregarDepartamento" tabindex="-1" aria-labelledby="modalAgregarDepartamentoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAgregarDepartamentoLabel">Agregar Departamento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/departamento/agregar" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ubicacion" class="form-label">Ubicación</label>
+                        <input type="text" class="form-control" id="ubicacion" name="ubicacion" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar departamento -->
+<div class="modal fade" id="modalEditarDepartamento" tabindex="-1" aria-labelledby="modalEditarDepartamentoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarDepartamentoLabel">Editar Departamento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editarDepartamentoForm" action="/departamento/editar/" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" id="editarIdDepartamento" name="idDepartamento">
+                    <div class="mb-3">
+                        <label for="editarNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editarNombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarUbicacion" class="form-label">Ubicación</label>
+                        <input type="text" class="form-control" id="editarUbicacion" name="ubicacion" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="{{ url_for('static', filename='js/scriptDepartamento.js') }}"></script>
+{% endblock javascripts %}

@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Empleado{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        <li>{{ message }}</li>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endwith %}
+
+<div class="container">
+    <div class="card shadow">
+        <div class="card-body">
+            <h5 class="card-title">Empleado</h5>
+
+            <!-- Botón para abrir modal de agregar empleado -->
+            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregarEmpleado">Agregar Empleado</button>
+
+            <!-- Tabla de empleados -->
+            <table class="table table-bordered table-striped table-hover" id="dataTable">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Apellido</th>
+                        <th scope="col">Fecha de Nacimiento</th>
+                        <th scope="col">Cargo</th>
+                        <th scope="col">Salario</th>
+                        <th scope="col">Departamento</th>
+                        <th scope="col">Proyecto</th>
+                        <th scope="col">Editar</th>
+                        <th scope="col">Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empleado in empleados %}
+                        <tr>
+                            <td>{{ empleado.idempleado }}</td>
+                            <td>{{ empleado.nombre }}</td>
+                            <td>{{ empleado.apellido }}</td>
+                            <td>{{ empleado.fechaNacimiento }}</td>
+                            <td>{{ empleado.cargo }}</td>
+                            <td>{{ empleado.salario }}</td>
+                            <td>{{ empleado.departamento.nombre }}</td>
+                            <td>{{ empleado.proyecto.nombre }}</td>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="editarEmpleado('{{ empleado.idempleado }}')">Editar</button>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('eliminar_empleado', id_empleado=empleado.idempleado) }}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar empleado -->
+<div class="modal fade" id="modalAgregarEmpleado" tabindex="-1" aria-labelledby="modalAgregarEmpleadoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAgregarEmpleadoLabel">Agregar Empleado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/empleado/agregar" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="apellido" class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="apellido" name="apellido" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                        <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cargo" class="form-label">Cargo</label>
+                        <input type="text" class="form-control" id="cargo" name="cargo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="salario" class="form-label">Salario</label>
+                        <input type="number" class="form-control" id="salario" name="salario" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="iddepartamento" class="form-label">Departamento</label>
+                        <select class="form-select" id="iddepartamento" name="iddepartamento" required>
+                            <option value="">Selecciona una opción</option>
+                            {% for departamento in departamentos %}
+                                <option value="{{ departamento.iddepartamento }}">{{ departamento.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="idproyecto" class="form-label">Proyecto</label>
+                        <select class="form-select" id="idproyecto" name="idproyecto">
+                            <option value="">Selecciona una opción</option>
+                            {% for proyecto in proyectos %}
+                                <option value="{{ proyecto.idproyecto }}">{{ proyecto.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar empleado -->
+<div class="modal fade" id="modalEditarEmpleado" tabindex="-1" aria-labelledby="modalEditarEmpleadoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarEmpleadoLabel">Editar Empleado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editarEmpleadoForm" action="/empleado/editar/" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" id="editarIdEmpleado" name="idEmpleado">
+                    <div class="mb-3">
+                        <label for="editarNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editarNombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarApellido" class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="editarApellido" name="apellido" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarFechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                        <input type="date" class="form-control" id="editarFechaNacimiento" name="fechaNacimiento" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarCargo" class="form-label">Cargo</label>
+                        <input type="text" class="form-control" id="editarCargo" name="cargo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarSalario" class="form-label">Salario</label>
+                        <input type="number" class="form-control" id="editarSalario" name="salario" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarIdDepartamento" class="form-label">Departamento</label>
+                        <select class="form-select" id="editarIdDepartamento" name="iddepartamento" required>
+                            <option value="">Selecciona una opción</option>
+                            {% for departamento in departamentos %}
+                                <option value="{{ departamento.iddepartamento }}">{{ departamento.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarIdProyecto" class="form-label">Proyecto</label>
+                        <select class="form-select" id="editarIdProyecto" name="idproyecto">
+                            <option value="">Selecciona una opción</option>
+                            {% for proyecto in proyectos %}
+                                <option value="{{ proyecto.idproyecto }}">{{ proyecto.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="{{ url_for('static', filename='js/scriptEmpleado.js') }}"></script>
+{% endblock javascripts %}

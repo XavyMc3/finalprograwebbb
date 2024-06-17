@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Proyecto{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        <li>{{ message }}</li>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endwith %}
+
+<div class="container">
+    <div class="card shadow">
+        <div class="card-body">
+            <h5 class="card-title">Proyecto</h5>
+
+            <!-- Botón para abrir modal de agregar proyecto -->
+            <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregarProyecto">Agregar Proyecto</button>
+
+            <!-- Tabla de proyectos -->
+            <table class="table table-bordered table-striped table-hover" id="dataTable">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Fecha de Inicio</th>
+                        <th scope="col">Fecha de Fin</th>
+                        <th scope="col">Editar</th>
+                        <th scope="col">Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proyecto in proyectos %}
+                        <tr>
+                            <td>{{ proyecto.idproyecto }}</td>
+                            <td>{{ proyecto.nombre }}</td>
+                            <td>{{ proyecto.fecha_inicio }}</td>
+                            <td>{{ proyecto.fecha_fin }}</td>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="editarProyecto('{{ proyecto.idproyecto }}')">Editar</button>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('eliminar_proyecto', id_proyecto=proyecto.idproyecto) }}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar proyecto -->
+<div class="modal fade" id="modalAgregarProyecto" tabindex="-1" aria-labelledby="modalAgregarProyectoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAgregarProyectoLabel">Agregar Proyecto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/proyecto/agregar" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
+                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_fin" class="form-label">Fecha de Fin</label>
+                        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar proyecto -->
+<div class="modal fade" id="modalEditarProyecto" tabindex="-1" aria-labelledby="modalEditarProyectoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarProyectoLabel">Editar Proyecto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editarProyectoForm" action="/proyecto/editar/" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" id="editarIdProyecto" name="idProyecto">
+                    <div class="mb-3">
+                        <label for="editarNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editarNombre" name="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarFechaInicio" class="form-label">Fecha de Inicio</label>
+                        <input type="date" class="form-control" id="editarFechaInicio" name="fecha_inicio" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editarFechaFin" class="form-label">Fecha de Fin</label>
+                        <input type="date" class="form-control" id="editarFechaFin" name="fecha_fin" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="{{ url_for('static', filename='js/scriptProyecto.js') }}"></script>
+{% endblock javascripts %}
+
+
